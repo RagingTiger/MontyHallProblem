@@ -43,7 +43,16 @@ class MontyHall(object):
 
     @staticmethod
     def predict(ndoors):
-        """Calculate the predicted probabilities of no switch vs. switch."""
+        """Calculate the predicted probabilities of no switch vs. switch.
+
+        Args:
+            ndoors (int): The number of doors to use.
+
+        Returns:
+            ndoors (int): The number of doors used.
+            noswitch (float): Probability of winning if players does not switch.
+            switch (float): Probability of winning if player switches.
+        """
 
         # calculate probabilities
         no_switch = 1.0 / float(ndoors)
@@ -51,14 +60,24 @@ class MontyHall(object):
 
         # return results dictionary
         return {
-                'ndoors': ndoors,
-                'noswitch': no_switch,
-                'switch': switch
-               }
+            'ndoors': ndoors,
+            'noswitch': no_switch,
+            'switch': switch
+        }
 
     @staticmethod
     def simulate(ndoors, first_choice):
-        """Non-interactive version of Monty Hall problem"""
+        """Non-interactive version of Monty Hall problem.
+
+        Args:
+           ndoors (int): The number of doors to use.
+           first_choice (int): The first door the player chooses.
+
+        Returns:
+           first_choice (int): The first door the player chooses.
+           second_choice (int): The second door the player can switch to.
+           car (int): The door hiding the car.
+        """
         # get random number in range of ndoors (representing the car to be won)
         car = random.randint(1, ndoors)
 
@@ -73,13 +92,23 @@ class MontyHall(object):
 
         # return results
         return {
-                'first_choice': first_choice,
-                'second_choice': second_choice,
-                'car': car
-               }
+            'first_choice': first_choice,
+            'second_choice': second_choice,
+            'car': car
+        }
 
     def experiment(self, ndoors, first_choice, ngames):
-        """Run multiple games of Monty Hall problem"""
+        """Run multiple games of Monty Hall problem.
+
+        Args:
+           ndoors (int): The number of doors to use.
+           first_choice (int): The first door the player chooses.
+           ngames (int): The number of games to run.
+
+        Returns:
+           noswitch (float): Experimental percent of winning without switching.
+           switch (float): Experimental percent of winning with switching.
+        """
         # setup initial values
         switch, noswitch = 0, 0
 
