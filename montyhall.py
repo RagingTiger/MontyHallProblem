@@ -1,167 +1,111 @@
 #!/usr/bin/env python
 
-"""
-Description: Monty Hall Problem Simulator
-References: https://en.wikipedia.org/wiki/Monty_Hall_problem
-Usage:
-    montyhall [-i] <ndoors>
-    montyhall (-i)
-"""
-
 # libs
-import sys
 import random
-import readline
-import termcolor
-
-
-# funcs
-def ctxt(txt, color='yellow'):
-    """Print out colored text to stdout."""
-    return termcolor.colored(txt, color)
-
-def warn(txt, exit=True):
-    """Print exit message and exit."""
-    if exit:
-        sys.exit(ctxt(txt, color='red'))
-    else:
-        print(ctxt(txt, color='red'))
-
 
 # classes
 class MontyHall(object):
     """A class with various methods for simulating the Monty Hall problem."""
-    def __init__(self, clargs):
-        # startup readline
-        readline.parse_and_bind("tab: complete")
 
-        # store clargs
-        self.clargs = clargs
+    def lmad(self):
+        """Interactive version of Monty Hall problem (i.e. Lets Make A Deal)."""
+        # start game
+        print('Let\'s Make A Deal')
 
-        # get user prompt
-        self.prompt = '> '
+        try:
+            # how many doors
+            ndoors = int(input('How many doors: '))
 
-        # command dictionary
-        self.commands = {
-                         'run': self._run,
-                         'help': self._print_help
-                         }
+            # which door would you like
+            first_choice = int(input('Choose one door out of {}: '.format(ndoors)))
+
+            # now the host calculates
+            results = self.simulate(ndoors, first_choice)
+
+            # would you like to switch
+            switch = input('Would you like to switch doors [y/n]: ')
+
+            # converst switch to true/false
+            switch = True if switch in {'y', 'Y', 'yes', 'Yes', 'YES'} else False
+
+            # check switch
+            final_choice = results['second_choice'] if switch else first_choice
+
+            # prepare results
+            results['final_choice'] = final_choice
+
+            # return results
+            return results
+
+        except EOFError or KeyboardInterrupt:
+            # do nothing but end silently
+            pass
 
     @staticmethod
-    def simulate(ndoors):
-        """Run Monty Hall simulations."""
-        # calculate probabilities for not switching vs. switching
+    def predict(ndoors):
+        """Calculate the predicted probabilities of no switch vs. switch."""
+
+        # calculate probabilities
         no_switch = 1.0 / float(ndoors)
         switch = 1.0 - no_switch
 
         # return results dictionary
-        return {'ndoors': ndoors, 'noswitch': no_switch, 'switch': switch}
+        return {
+                'ndoors': ndoors,
+                'noswitch': no_switch,
+                'switch': switch
+               }
 
     @staticmethod
-    def print_results(results):
-        """Print results from Monty Hall simulations to terminal."""
-        # final operations on results
-        ndoors = results['ndoors']
-        switch_prob = results['switch'] * 100      # convert to percent
-        noswitch_prob = results['noswitch'] * 100  # convert to percent
+    def simulate(ndoors, first_choice):
+        """Non-interactive version of Monty Hall problem"""
+        # get random number in range of ndoors (representing the car to be won)
+        car = random.randint(1, ndoors)
 
-        # format output text with result values
-        text_report = (
-            'Monty Hall problem:         {0} doors\n'
-            'Winning with switching:     {1:.2f}%\n'
-            'Winning without switching:  {2:.2f}%'
-        ).format(ndoors, switch_prob, noswitch_prob)
+        # get second_choice (i.e. 2nd door to choose from)
+        if first_choice != car:
+            second_choice = car
+        else:
+            while True:
+                second_choice = random.randint(1, ndoors)
+                if second_choice != car:
+                    break
 
-        # send to stdout (with color)
-        print(ctxt(text_report))
+        # return results
+        return {
+                'first_choice': first_choice,
+                'second_choice': second_choice,
+                'car': car
+               }
 
-    def interpreter(self):
-        """Starts interactive session to store state of games."""
-        while True:
-            try:
-                cmd = input(self.prompt)
-                self._execute_cmd(cmd)
-            except EOFError:
-                warn('\nClosing interactive session')
-            except KeyboardInterrupt:
-                print('')
+    def experiment(self, ndoors, first_choice, ngames):
+        """Run multiple games of Monty Hall problem"""
+        # setup initial values
+        switch, noswitch = 0, 0
 
-    def _parse_cmd(self, cmd):
-        """Parse commands for interactive mode."""
-        # first split
-        return cmd.split()
+        # setup loop
+        for _ in range(ngames):
+            # get results of game
+            game = self.simulate(ndoors, first_choice)
 
-    def _execute_cmd(self, command):
-        """Execute commands passed in interactive mode."""
-        # first parse
-        cmd_list = self._parse_cmd(command)
-
-        # now execute
-        try:
-            self.commands[cmd_list[0]](cmd_list)
-        except KeyError:
-            warn('Unknown command {0}'.format(cmd_list[0]), exit=False)
-
-    def _run(self, cmd_list):
-        """Setup simulation parameters and execute."""
-        try:
-            # see if ndoors present in command list from interpreter
-            ndoors = int(cmd_list[1])
-
-            # now update clargs
-            self.clargs['<ndoors>'] = ndoors
-
-        except IndexError:
-            # if not in command list check state
-            if self.clargs['<ndoors>']:
-                ndoors = int(self.clargs['<ndoors>'])
+            # update statistics
+            if game['first_choice'] == game['car']:
+                noswitch += 1.0
             else:
-                warn('Usage Error: Type \'help\' for more details', exit=False)
-                return
+                switch += 1.0
 
-        # execute simulation
-        results = self.simulate(ndoors)
-
-        # print out results
-        self.print_results(results)
-
-    def _print_help(self, args):
-        """Prints help message during interactive session."""
-        help_msg = ('run [<ndoors>]       Runs the simulation with inputs\n'
-                    'help                 Prints this help message\n')
-
-        # print help
-        print(ctxt(help_msg, color='red'))
+        # calculate results
+        return {
+            'noswitch': noswitch / (switch + noswitch),
+            'switch': switch / (switch + noswitch)
+        }
 
 
 # executable only
 if __name__ == '__main__':
 
     # libs
-    from docopt import docopt
+    import fire
 
-    # get args
-    args = docopt(__doc__)
-
-    # check interactive
-    if args['-i']:
-        # we need to store state
-        game = MontyHall(args)
-
-        # start interactive
-        game.interpreter()
-
-    else:
-        try:
-            # number of doors
-            ndoors = int(args['<ndoors>'])
-
-            # execute simulation
-            results = MontyHall.simulate(ndoors)
-
-            # print out results
-            MontyHall.print_results(results)
-
-        except ValueError:
-            # must be int
-            warn('ValueError: Number of doors must be an integer.')
+    # bang bang
+    fire.Fire(MontyHall)
