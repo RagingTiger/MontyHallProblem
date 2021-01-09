@@ -20,75 +20,55 @@ with the [standard assumptions](https://en.wikipedia.org/wiki/Monty_Hall_problem
 + **3** The host must always offer the chance to switch between the originally chosen door and the remaining closed door.
 
 ## Usage
+The `command line interface` portion of this module uses the
+[fire](https://github.com/google/python-fire.git) library, which generates the
+below documentation by running `python montyhall.py` as follows:
 ```
-montyhall [-i] <ndoors>
-montyhall (-i)
-```
+$ python montyhall.py
 
-## Example
-### Basic: Instance Mode
-Running a single instance with **3 doors**:
-```
-$ python montyhall.py 3
-Monty Hall problem:         3 doors
-Winning with switching:     66.67%
-Winning without switching:  33.33%
-```
-Running a single instance with **10 doors**:
-```
-$ python montyhall.py 10
-Monty Hall problem:         10 doors
-Winning with switching:     90.00%
-Winning without switching:  10.00%
-```
-Running a single instance with **100 doors**:
-```
-python montyhall.py 100
-Monty Hall problem:         100 doors
-Winning with switching:     99.00%
-Winning without switching:  1.00%
-```
+NAME
+    montyhall.py - A class with various methods for simulating the Monty Hall
+                   problem.
 
-### Advanced: Interactive Mode
-Whereas the basic usage is only single instances with no saved state, the
-advanced usage drops into an interactive interpreter that saves state between
-games. For example:
-```
-$ python montyhall.py -i 3
-> run
-Monty Hall problem:         3 doors
-Winning with switching:     66.67%
-Winning without switching:  33.33%
-> run 10
-Monty Hall problem:         10 doors
-Winning with switching:     90.00%
-Winning without switching:  10.00%
-```
-The user can choose to not pass an argument if using the `-i` option:
-```
-$ python montyhall.py -i
-> run 100
-Monty Hall problem:         100 doors
-Winning with switching:     99.00%
-Winning without switching:  1.00%
-> run 1000
-Monty Hall problem:         1000 doors
-Winning with switching:     99.90%
-Winning without switching:  0.10%
-```
-In the above example you can see we are increasing the number of doors using
-the **interactive** command `run`, but there are a few other commands we can
-use while in the **interpreter**:
-```
-> help
-run [<ndoors>]       Runs the simulation with inputs
-help                 Prints this help message
-```
-While the `help` command should be self-explanatory, the other commands could
-benefit from some clarification:
+SYNOPSIS
+    montyhall.py COMMAND
 
-+ The `run` command can **optionally** except an argument (e.g. the number of
-  doors to play
-  [Lets Make A Deal](https://en.wikipedia.org/wiki/Monty_Hall_problem#The_paradox)).
-  Without an argument it will repeat the same
-  simulations with the previous argument values given for `<ndoors>`.
+DESCRIPTION
+    A class with various methods for simulating the Monty Hall problem.
+
+COMMANDS
+    COMMAND is one of the following:
+
+     experiment
+       Run multiple games of Monty Hall problem
+
+     lmad
+       Interactive version of Monty Hall problem (i.e. Lets Make A Deal).
+
+     predict
+       Calculate the predicted probabilities of no switch vs. switch.
+
+     simulate
+       Non-interactive version of Monty Hall problem
+```
+To find out more about any of the `COMMANDS` shown above simply run the help
+flag `--help` after the command. For example to learn about the `predict`
+command:
+```
+$ python montyhall.py predict --help
+NAME
+    montyhall.py predict - Calculate the predicted probabilities of no switch vs. switch.
+
+SYNOPSIS
+    montyhall.py predict NDOORS
+
+DESCRIPTION
+    Calculate the predicted probabilities of no switch vs. switch.
+
+POSITIONAL ARGUMENTS
+    NDOORS
+        The number of doors to use.
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
+```
